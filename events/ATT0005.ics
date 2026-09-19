@@ -1,0 +1,66 @@
+BEGIN:VCALENDAR
+METHOD:PUBLISH
+PRODID:Microsoft Exchange Server 2010
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Eastern Standard Time
+BEGIN:STANDARD
+DTSTART:16010101T020000
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=1SU;BYMONTH=11
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010101T020000
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=2SU;BYMONTH=3
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+ORGANIZER;CN="Collinge, Sarah":mailto:Sarah.Collinge@tdsb.on.ca
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN="Collinge, 
+ Sarah":mailto:Sarah.Collinge@tdsb.on.ca
+DESCRIPTION;LANGUAGE=en-CA:Brenda Jones :- School Visit (SV). Reviewed options f
+ or regulation strategies to implement at  the  end of  morning  group meet
+ ing daily. Discussed importance of practicing these regularly when in neut
+ ral state so these can be easy to recruit in heightened states. Plan to se
+ nd handout.\n\nRohan Khosh :- School Visit (SV). Set Rohan up in stander. Rohan 
+ has grown over summer and is at the  end of range for Dondolino stander. H
+ e cannot  achieve full extension at hips (approx. 160 deg.) or knees (160 
+ deg.). plan to look for medium Easystand in OT/PT inventory. Suggested pau
+ sing use of stander to Dave (teacher) until I can get a bigger one. Teleph
+ one call to mum. Left voicemail  to update her.\n\nEsther Briggs :- School Visit
+  (SV). Conducted Analysis of Sensory Behaviour Inventory with Brenda. Plan
+  to score\, make suggestions.\n\nMandy Turner :-  School Visit (SV). Trialed stylu
+ s access to touch screen on Elitebook vs. IdeaPad. Mandy was able  to acti
+ vate touchscreen easier with stylus on IdeaPad. IdeaPad activated each tar
+ get on initial touch whereas Elitebook occasionally required Mandy to repe
+ at touch. Mandy also found smaller screen on IdeaPad helpful due to her li
+ mited range of motion. Plan to write report recommending IdeaPad.\n
+UID:040000008200E00074C5B7101A82E0080000000050187BE5233EDD01000000000000000
+ 01000000077B7D07CCC2D174797AF602FD07476A3
+SUMMARY;LANGUAGE=en-CA:[SAMPLE NOTES] Brenda\, RohanK\, Esther\, Mandy
+DTSTART;VALUE=DATE:20260817
+DTEND;VALUE=DATE:20260818
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP:20260909T211803Z
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+SEQUENCE:0
+LOCATION;LANGUAGE=en-CA:
+X-MICROSOFT-CDO-APPT-SEQUENCE:0
+X-MICROSOFT-CDO-OWNERAPPTID:0
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-DONOTFORWARDMEETING:FALSE
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MICROSOFT-REQUESTEDATTENDANCEMODE:DEFAULT
+X-MICROSOFT-ISRESPONSEREQUESTED:TRUE
+X-MICROSOFT-LOCATIONS:[]
+END:VEVENT
+END:VCALENDAR

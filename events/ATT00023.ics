@@ -1,0 +1,70 @@
+BEGIN:VCALENDAR
+METHOD:PUBLISH
+PRODID:Microsoft Exchange Server 2010
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Eastern Standard Time
+BEGIN:STANDARD
+DTSTART:16010101T020000
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=1SU;BYMONTH=11
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010101T020000
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=2SU;BYMONTH=3
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+ORGANIZER;CN="Collinge, Sarah":mailto:Sarah.Collinge@tdsb.on.ca
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN="Collinge, 
+ Sarah":mailto:Sarah.Collinge@tdsb.on.ca
+DESCRIPTION;LANGUAGE=en-CA:Brenda Jones :- emailed Brenda with handout of regula
+ tion strategies for daily practice in morning group meeting.\nHi Brenda\,\
+ n\nHope you’re doing well.\n\nAttached is a handout with several differe
+ nt regulation strategies to include in your morning group meeting.\n\nReac
+ h out if you have any questions.\nSarah\n\n{SCREENSHOT OF REGULATION STRAT
+ EGIES DOC ATTACHED TO EMAIL HERE}\n\nRohan Khosh :- found medium Easystand in 
+ OT/PT inventory. Assigned it to Rohan\, changed status of Dondolino. Compl
+ eted transportation fforms\, tagged equipment. updated Dave and asked him 
+ to tag Dondolino with form. Told Dave not to put Rohan in Easystand until 
+ I adjust and provide staff training for transfer and set up which I will d
+ o at visit next Wednesday.\n\nEsther Briggs :- scored Analysis of Sensory Behavi
+ our Inventory. Sent Brenda doc with suggestions for sensory needs per asse
+ ssment results including equipment to try. Plan to discuss trial of equipm
+ ent at visit next week.\nHey Brenda\,\n\nAttached are some sensory suggest
+ ions for EB according to her assessment results. Take a look and we can di
+ scuss  which equipment you’ve tried or would like to try for EB when I v
+ isit next week.\n\nThanks\nSarah\n\n{SCREENSHOT OF SENSORY STRATEGIES FOR 
+ EB DOC ATTACHED TO EMAIL HERE}\n\nRohan Savard :- Received referral. Telephone 
+ call to mum cell. Left voicemail introducing myself and requested return c
+ all to discuss referral and process informed consent. Provided my phone #.
+ \n
+UID:040000008200E00074C5B7101A82E00800000000907930132C3EDD01000000000000000
+ 010000000438897810E76544E9C993CBC18487E17
+SUMMARY;LANGUAGE=en-CA: [SAMPLE NOTES] Brenda\, RohanK\, Esther\, RohanS
+DTSTART;VALUE=DATE:20260820
+DTEND;VALUE=DATE:20260821
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP:20260909T211805Z
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+SEQUENCE:0
+LOCATION;LANGUAGE=en-CA:
+X-MICROSOFT-CDO-APPT-SEQUENCE:0
+X-MICROSOFT-CDO-OWNERAPPTID:0
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-DONOTFORWARDMEETING:FALSE
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MICROSOFT-REQUESTEDATTENDANCEMODE:DEFAULT
+X-MICROSOFT-ISRESPONSEREQUESTED:TRUE
+X-MICROSOFT-LOCATIONS:[]
+END:VEVENT
+END:VCALENDAR
