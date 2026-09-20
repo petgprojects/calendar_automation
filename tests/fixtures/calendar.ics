@@ -1,0 +1,108 @@
+BEGIN:VCALENDAR
+METHOD:PUBLISH
+PRODID:Microsoft Exchange Server 2010
+VERSION:2.0
+X-WR-CALNAME:Automation
+BEGIN:VTIMEZONE
+TZID:Eastern Standard Time
+BEGIN:STANDARD
+DTSTART:16010101T020000
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=1SU;BYMONTH=11
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010101T020000
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=2SU;BYMONTH=3
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DESCRIPTION:Brenda Jones :- School Visit (SV). Reviewed options for regulat
+ ion strategies to implement at  the  end of  morning  group meeting daily.
+  Discussed importance of practicing these regularly when in neutral state 
+ so these can be easy to recruit in heightened states. Plan to send handout
+ .\n\nRohan Khosh :- School Visit (SV). Set Rohan up in stander. Rohan has 
+ grown over summer and is at the  end of range for Dondolino stander. He ca
+ nnot  achieve full extension at hips (approx. 160 deg.) or knees (160 deg.
+ ). plan to look for medium Easystand in OT/PT inventory. Suggested pausing
+  use of stander to Dave (teacher) until I can get a bigger one. Telephone 
+ call to mum. Left voicemail  to update her.\n\nEsther Briggs :- School Vis
+ it (SV). Conducted Analysis of Sensory Behaviour Inventory with Brenda. Pl
+ an to score\, make suggestions.\n\nMandy Turner :-  School Visit (SV). Tri
+ aled stylus access to touch screen on Elitebook vs. IdeaPad. Mandy was abl
+ e  to activate touchscreen easier with stylus on IdeaPad. IdeaPad activate
+ d each target on initial touch whereas Elitebook occasionally required Man
+ dy to repeat touch. Mandy also found smaller screen on IdeaPad helpful due
+  to her limited range of motion. Plan to write report recommending IdeaPad
+ .\n
+UID:040000008200E00074C5B7101A82E0080000000050187BE5233EDD01000000000000000
+ 01000000077B7D07CCC2D174797AF602FD07476A3
+SUMMARY:[SAMPLE NOTES] Brenda\, RohanK\, Esther\, Mandy
+DTSTART;VALUE=DATE:20260817
+DTEND;VALUE=DATE:20260818
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP:20260919T184840Z
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+SEQUENCE:0
+LOCATION:
+X-MICROSOFT-CDO-APPT-SEQUENCE:0
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-DONOTFORWARDMEETING:FALSE
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MICROSOFT-REQUESTEDATTENDANCEMODE:DEFAULT
+X-MICROSOFT-ISRESPONSEREQUESTED:FALSE
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Brenda Jones :- emailed Brenda with handout of regulation strat
+ egies for daily practice in morning group meeting.\nHi Brenda\,\n\nHope yo
+ u’re doing well.\n\nAttached is a handout with several different regulat
+ ion strategies to include in your morning group meeting.\n\nReach out if y
+ ou have any questions.\nSarah\n\n{SCREENSHOT OF REGULATION STRATEGIES DOC 
+ ATTACHED TO EMAIL HERE}\n\nRohan Khosh :- found medium Easystand in OT/PT 
+ inventory. Assigned it to Rohan\, changed status of Dondolino. Completed t
+ ransportation fforms\, tagged equipment. updated Dave and asked him to tag
+  Dondolino with form. Told Dave not to put Rohan in Easystand until I adju
+ st and provide staff training for transfer and set up which I will do at v
+ isit next Wednesday.\n\nEsther Briggs :- scored Analysis of Sensory Behavi
+ our Inventory. Sent Brenda doc with suggestions for sensory needs per asse
+ ssment results including equipment to try. Plan to discuss trial of equipm
+ ent at visit next week.\nHey Brenda\,\n\nAttached are some sensory suggest
+ ions for EB according to her assessment results. Take a look and we can di
+ scuss  which equipment you’ve tried or would like to try for EB when I v
+ isit next week.\n\nThanks\nSarah\n\n{SCREENSHOT OF SENSORY STRATEGIES FOR 
+ EB DOC ATTACHED TO EMAIL HERE}\n\nRohan Savard :- Received referral. Telep
+ hone call to mum cell. Left voicemail introducing myself and requested ret
+ urn call to discuss referral and process informed consent. Provided my pho
+ ne #.\n
+UID:040000008200E00074C5B7101A82E00800000000907930132C3EDD01000000000000000
+ 010000000438897810E76544E9C993CBC18487E17
+SUMMARY: [SAMPLE NOTES] Brenda\, RohanK\, Esther\, RohanS
+DTSTART;VALUE=DATE:20260820
+DTEND;VALUE=DATE:20260821
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP:20260919T184840Z
+TRANSP:OPAQUE
+STATUS:CONFIRMED
+SEQUENCE:0
+LOCATION:
+X-MICROSOFT-CDO-APPT-SEQUENCE:0
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-DONOTFORWARDMEETING:FALSE
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MICROSOFT-REQUESTEDATTENDANCEMODE:DEFAULT
+X-MICROSOFT-ISRESPONSEREQUESTED:FALSE
+END:VEVENT
+END:VCALENDAR

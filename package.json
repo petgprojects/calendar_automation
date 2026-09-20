@@ -1,0 +1,86 @@
+{
+  "name": "calendar-notes-offline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline calendar notes importer",
+  "author": "Calendar Notes contributors",
+  "license": "UNLICENSED",
+  "main": "dist/electron/main.cjs",
+  "scripts": {
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "start": "npm run build && electron .",
+    "test": "tsx --test tests/*.test.ts",
+    "test:ui": "npm run build && playwright test",
+    "format": "prettier --write src tests scripts/*.ts scripts/*.mjs playwright.config.ts",
+    "test:render": "tsx scripts/render-fixtures.ts",
+    "package:mac": "npm run build && electron-builder --mac --dir",
+    "dist:mac": "npm run build && electron-builder --mac dmg zip",
+    "dist:win": "npm run build && electron-builder --win nsis"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.11",
+    "ical.js": "^2.2.1",
+    "jszip": "^3.10.1",
+    "parse5": "^7.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.0.0",
+    "electron": "^44.4.3",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.25.0",
+    "prettier": "^3.9.8",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "build": {
+    "appId": "org.local.calendarnotes",
+    "productName": "Calendar Notes",
+    "asar": true,
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
