@@ -5,7 +5,8 @@ import JSZip from "jszip";
 import { Settings } from "../src/core/model";
 import { WordDocument } from "../src/core/docx";
 export const fixture = path.resolve("tests/fixtures/calendar.ics");
-export const files = (await fs.readdir("notes"))
+export const fixtureNotes = "tests/fixtures/docs";
+export const files = (await fs.readdir(fixtureNotes))
   .filter((n) => n.endsWith(".docx"))
   .sort();
 export const mandy = files.find((n) => n.startsWith("Mandy"))!;
@@ -27,7 +28,7 @@ export async function workspace(blank = false) {
   const folder = path.join(root, "notes");
   await fs.mkdir(folder);
   for (const name of files) {
-    const data = await fs.readFile(path.join("notes", name));
+    const data = await fs.readFile(path.join(fixtureNotes, name));
     if (blank) {
       const doc = await WordDocument.load(data);
       for (const row of doc.rows())

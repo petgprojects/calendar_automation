@@ -323,7 +323,7 @@ export async function indexDocuments(root: string): Promise<Candidate[]> {
       if (e.isDirectory()) await walk(file);
       else if (e.isFile()) {
         const m =
-          /^(.+?)\s*[-–]\s*(?:student|teacher)\s+progress\s+note\s+(\d{4})\s*-\s*(\d{4})\.docx$/i.exec(
+          /^(.+?)(?:\s*[-–]\s*|\s+)(?:student|teacher)\s+progress\s+note\s+(\d{4})\s*-\s*(\d{4})\.docx$/i.exec(
             e.name,
           );
         if (m && Number(m[3]) === Number(m[2]) + 1)

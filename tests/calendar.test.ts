@@ -99,6 +99,25 @@ test("unknown/repeated headings, preambles, unresolved images and conflicting UI
   assert.equal(r.notes.length, 0);
   assert.match(r.issues[0].message, /Conflicting/);
 });
+test("compact headings parse, while repeated aliases and unqualified names are held", () => {
+  const parsed = parseCalendar(
+    event("BrendaJ :- one\nMandy Turner :- two"),
+    through,
+  );
+  assert.deepEqual(
+    parsed.notes.map((n) => n.person),
+    ["BrendaJ", "Mandy Turner"],
+  );
+  for (const text of [
+    "BrendaJ :- one\nBrenda Jones :- two",
+    "BrendaJ :- one\nBrendaJ :- two",
+    "Mandy :- one",
+  ]) {
+    const result = parseCalendar(event(text), through);
+    assert.equal(result.notes.length, 0);
+    assert.equal(result.issues.length, 1);
+  }
+});
 test("rollover validity and contradictory version metadata are conservative", () => {
   assert.throws(() => validateRollover(2, 29));
   assert.throws(() => validateRollover(4, 31));

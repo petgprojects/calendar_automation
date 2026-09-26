@@ -22,9 +22,9 @@ Dates come from the event, not the import date. History in the export is process
 
 ### Expected documents and notes
 
-- Headings: `Full Name :-`, at the start of a logical line. Blank lines are preserved inside a note.
-- Filenames: `Full Name- Student PROGRESS NOTE 2025-2026.docx` or `Full Name-Teacher Progress Note 2025-2026.docx`. Case and harmless spacing are normalized. Subfolders are searched; symlinks, backup and temporary folders are excluded.
-- Existing two-column date/comments body table, with dates like `Aug 17/26`, and an internal Student/Teacher Name label matching the filename. Headers, footers, logos and other package parts stay intact. Merged tables, tracked changes, fields, protected documents, ambiguous matches and unfamiliar layouts need review; no replacement forms are generated.
+- Headings: `Full Name :-` or `FirstNameL :-` (first name + last initial), at the start of a logical line. Blank lines are preserved inside a note. Changing a heading after import changes its tracked identity and is held for review.
+- Filenames: `Full Name- Student PROGRESS NOTE 2025-2026.docx` or `FirstNameL-Teacher Progress Note 2025-2026.docx`. Case and harmless spacing (including a space in place of the dash) are tolerated. Subfolders are searched; symlinks, backup and temporary folders are excluded. If multiple files match the same name/initial and year, the note is held for review.
+- Existing two-column date/comments body table, with dates like `Aug 17/26`, and an internal Student/Teacher Name label matching the full name or its first-name/last-initial abbreviation in both the calendar and filename. Headers, footers, logos and other package parts stay intact. Merged tables, tracked changes, fields, protected documents, ambiguous matches and unfamiliar layouts need review; no replacement forms are generated.
 - All eight supplied sample notes already exist in Word: **five are linked after whitespace normalization; three require review**. Sample screenshot placeholders remain literal text.
 - Embedded PNG/JPEG images in `X-ALT-DESC;FMTTYPE=text/html` are supported as data URLs or embedded CID attachments (`X-CID`, `CID`, or `X-FILENAME`). Basic bold/italic/underline formatting is supported. External links are never fetched. Unassigned attachments, unsupported HTML structures/formats and unresolved images hold the event for review. Image tests use synthetic fixtures, not the supplied samples.
 

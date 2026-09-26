@@ -8,6 +8,7 @@ import { hash, schoolYear } from "../src/core/model";
 import { Store } from "../src/core/storage";
 import {
   workspace,
+  fixtureNotes,
   files,
   mandy,
   brenda,
@@ -19,7 +20,7 @@ const through = "2026-09-19";
 
 test("real supplied files: 5 adopt, 3 review; originals/parts preserved; renamed and individual repeats", async (t) => {
   const originals = await Promise.all(
-    files.map((n) => fs.readFile(path.join("notes", n))),
+    files.map((n) => fs.readFile(path.join(fixtureNotes, n))),
   );
   const w = await workspace();
   t.after(w.cleanup);
@@ -72,9 +73,114 @@ test("real supplied files: 5 adopt, 3 review; originals/parts preserved; renamed
   }
   for (let i = 0; i < files.length; i++)
     assert.deepEqual(
-      await fs.readFile(path.join("notes", files[i])),
+      await fs.readFile(path.join(fixtureNotes, files[i])),
       originals[i],
     );
+});
+test("compact document names and headings import across school years, including a full heading and a missing dash", async (t) => {
+  const w = await workspace(true);
+  t.after(w.cleanup);
+  const people = [
+    ["Brenda Jones", "BrendaJ"],
+    ["Esther Briggs", "EstherB"],
+    ["Mandy Turner", "MandyT"],
+    ["Rohan Khosh", "RohanK"],
+    ["Rohan Savard", "RohanS"],
+  ];
+  await fs.mkdir(path.join(w.folder, "2025-2026"));
+  await fs.mkdir(path.join(w.folder, "2026-2027"));
+  for (const [full, short] of people) {
+    const original = files.find((file) => file.startsWith(full))!;
+    const compact =
+      short === "MandyT"
+        ? original.replace("Mandy Turner- ", "MandyT ")
+        : original.replace(full, short);
+    const old = path.join(w.folder, "2025-2026", compact);
+    await fs.rename(path.join(w.folder, original), old);
+    await fs.copyFile(
+      old,
+      path.join(
+        w.folder,
+        "2026-2027",
+        compact.replace("2025-2026", "2026-2027"),
+      ),
+    );
+  }
+  const note = (date: string, uid: string, fullMandy: boolean) =>
+    event(
+      people
+        .map(
+          ([full, short]) =>
+            `${fullMandy && short === "MandyT" ? full : short} :- ${uid} note`,
+        )
+        .join("\n\n"),
+      { date, uid },
+    );
+  const first = note("2026-08-18", "old-year", false);
+  const second = note("2026-09-07", "new-year", true).match(
+    /BEGIN:VEVENT[\s\S]*END:VEVENT/,
+  )![0];
+  await w.write(first.replace("END:VCALENDAR", second + "\r\nEND:VCALENDAR"));
+  const r = await runImport(w.settings, { through });
+  assert.equal(r.added, 10, JSON.stringify(r.issues));
+  assert.equal(r.issues.length, 0);
+  assert.equal((await runImport(w.settings, { through })).unchanged, 10);
+  assert.ok(
+    (
+      await readDoc(
+        w.folder,
+        "2025-2026/MandyT Student PROGRESS NOTE 2025-2026.docx",
+      )
+    )
+      .rows()
+      .some((row) => row.text === "old-year note"),
+  );
+});
+test("abbreviation collisions and internal full-name mismatches never choose a document", async (t) => {
+  const w = await workspace(true);
+  t.after(w.cleanup);
+  const original = files.find((file) => file.startsWith("Rohan Khosh"))!;
+  const khosh = original.replace("Rohan Khosh", "RohanK");
+  await fs.rename(path.join(w.folder, original), path.join(w.folder, khosh));
+  await w.write(event("RohanK :- Test"));
+  const other = khosh.replace("RohanK", "Rohan King");
+  await fs.copyFile(path.join(w.folder, khosh), path.join(w.folder, other));
+  const ambiguous = await runImport(w.settings, { through });
+  assert.equal(ambiguous.issues[0].kind, "ambiguous");
+  assert.equal(ambiguous.added, 0);
+  await fs.rm(path.join(w.folder, other));
+  await w.write(event("Rohan Khosh :- First\nRohan King :- Second"));
+  const shared = await runImport(w.settings, { through });
+  assert.equal(shared.added, 0);
+  assert.equal(shared.issues[0].kind, "document");
+  await w.write(event("Rohan Khosh :- Test"));
+  const full = path.join(w.folder, khosh);
+  const zip = await JSZip.loadAsync(await fs.readFile(full));
+  for (const part of Object.keys(zip.files).filter((name) =>
+    /^word\/header\d+\.xml$/.test(name),
+  ))
+    zip.file(
+      part,
+      (await zip.file(part)!.async("string")).replaceAll(
+        "Rohan Khosh",
+        "Rohan King",
+      ),
+    );
+  await fs.writeFile(full, await zip.generateAsync({ type: "nodebuffer" }));
+  const mismatch = await runImport(w.settings, { through });
+  assert.equal(mismatch.added, 0);
+  assert.match(mismatch.issues[0].message, /internal.*Name/);
+});
+test("changing a tracked full heading to an abbreviation requires review", async (t) => {
+  const w = await workspace(true);
+  t.after(w.cleanup);
+  await w.write(event());
+  assert.equal((await runImport(w.settings, { through })).added, 1);
+  await w.write(event("MandyT :- A new note.", { seq: 1 }));
+  const r = await runImport(w.settings, { through });
+  assert.equal(r.added, 0);
+  assert.ok(r.issues.some((i) => i.kind === "identity"));
+  assert.ok(r.issues.some((i) => i.kind === "removed"));
 });
 test("empty real forms receive eight notes, blank rows reused, source paragraphs preserved", async (t) => {
   const w = await workspace(true);
