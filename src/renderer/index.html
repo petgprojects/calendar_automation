@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Calendar Notes — offline</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="badge">LOCAL FILES ONLY · NO SIGN-IN</span>
+        <h1>Calendar Notes</h1>
+        <p>Put calendar notes into your existing Word documents.</p>
+      </header>
+      <p class="notice">
+        This app works offline. To include later calendar changes, save a
+        <strong>fresh private export</strong> from Outlook, then choose that
+        file here. You do not need to publish a calendar.
+      </p>
+      <section id="setup-section" aria-labelledby="setup-title">
+        <details id="setup-details" open>
+          <summary id="setup-title">
+            Your files and school year — change settings
+          </summary>
+          <div class="step">
+            <h3>1. Exported calendar</h3>
+            <p id="ics-path" class="path">No calendar selected</p>
+            <button id="choose-ics">Choose calendar file…</button>
+            <p class="hint">
+              One .ics file. “Update now” rereads the selected path every time.
+            </p>
+          </div>
+          <div class="step">
+            <h3>2. Existing Word documents</h3>
+            <p id="folder-path" class="path">No folder selected</p>
+            <button id="choose-folder">Choose notes folder…</button>
+            <p class="hint">
+              Includes subfolders. Keep backups outside this folder or in the
+              app’s hidden backup folder.
+            </p>
+          </div>
+          <form id="year-form" class="step">
+            <h3>3. School year starts on</h3>
+            <div class="fields">
+              <div>
+                <label for="month">Month</label
+                ><select id="month"></select>
+              </div>
+              <div>
+                <label for="day">Day</label
+                ><select id="day"></select>
+              </div>
+            </div>
+            <p id="year-examples" class="hint"></p>
+            <details>
+              <summary>Timed events and advanced date settings</summary>
+              <label for="timezone">Use dates in</label
+              ><select id="timezone">
+                <option value="source">
+                  Event dates — use each event’s own timezone
+                </option>
+                <option value="America/Toronto">Eastern time — Toronto</option>
+                <option value="America/Winnipeg">
+                  Central time — Winnipeg
+                </option>
+                <option value="America/Edmonton">
+                  Mountain time — Edmonton
+                </option>
+                <option value="America/Vancouver">
+                  Pacific time — Vancouver
+                </option>
+                <option value="America/Halifax">Atlantic time — Halifax</option>
+                <option value="America/St_Johns">Newfoundland time</option>
+                <option value="UTC">UTC</option>
+              </select>
+              <p class="hint">
+                All-day dates never shift. Floating times use “Event dates.”
+                Changing these settings never moves previously imported entries
+                automatically.
+              </p>
+            </details>
+            <button id="confirm-year" type="submit">
+              Confirm school-year date</button
+            ><span id="confirmed" role="status"></span>
+          </form>
+        </details>
+      </section>
+      <section id="update-section" aria-labelledby="update-title">
+        <h2 id="update-title">Ready when you are</h2>
+        <p id="selected-summary" class="hint"></p>
+        <p>
+          Processes calendar history through today, not future notes. Existing
+          files are backed up before changes.
+        </p>
+        <button class="primary" id="update" disabled>Update now</button
+        ><button id="choose-newer" hidden>Choose newer export…</button>
+        <p id="last-run" class="hint"></p>
+        <p id="status" role="status" aria-live="polite" tabindex="-1">
+          Choose your files and confirm the school-year date to begin.
+        </p>
+        <p id="error" role="alert" hidden></p>
+        <div id="results"></div>
+      </section>
+      <section id="review-section" hidden aria-labelledby="review-title">
+        <h2 id="review-title" tabindex="-1">Review items</h2>
+        <p>
+          Nothing is overwritten for an unresolved item. Your choice is saved
+          locally. Review decisions rescan the file and check that neither
+          version changed.
+        </p>
+        <div id="reviews"></div>
+      </section>
+      <section class="secondary" aria-labelledby="safety-title">
+        <h2 id="safety-title">Safety and recovery</h2>
+        <p>
+          Close Word before updating. Use only one computer for this folder.
+          Keep the hidden <code>.calendar-import</code> folder with your
+          documents: it contains backups and duplicate-prevention history.
+        </p>
+        <button id="recover">Recover last update…</button
+        ><button id="show-folder">Open notes folder</button>
+        <details>
+          <summary>What can be imported?</summary>
+          <p>
+            Full names followed by <strong>:-</strong> start each note. Blank
+            lines stay within notes. Filenames must include the full name,
+            Student or Teacher Progress Note, and school year. Existing
+            two-column date/comments forms are required.
+          </p>
+          <p>
+            Embedded PNG/JPEG images in an HTML calendar description are
+            supported. Links, missing attachments and unsupported layouts are
+            held for review; no image is fetched from the internet. A file
+            cannot supply content Outlook omitted. The supplied screenshot
+            placeholders are text, not real images.
+          </p>
+          <p>
+            Changed notes update automatically only when a newer source revision
+            can be established and the linked Word entry is unchanged. Missing
+            events never delete Word entries. This unsigned first release needs
+            recipient testing before use with live records.
+          </p>
+        </details>
+      </section>
+      <footer>
+        Private by design. Notes, backups and settings stay on this computer. No
+        accounts or network connection required.
+      </footer>
+    </main>
+  </body>
+</html>

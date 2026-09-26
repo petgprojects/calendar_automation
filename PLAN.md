@@ -1,5 +1,7 @@
 # Outlook calendar notes importer
 
+> **Implementation update (19 September 2026):** the first release is now a **local ICS-only Electron application**. Microsoft authentication, Graph, registration and connected-calendar work below are historical future-scope proposals, not first-release dependencies. See `README.md` for launch instructions, `TASKS.md` for implementation status, and `VERIFICATION.md` for actual test/build evidence. Supplied calendar and Word originals remain unchanged.
+
 Planning status: core requirements agreed on 19 September 2026, including a subsequently requested local master-ICS import option. Peter is an external volunteer developer with no contacts at the recipient's workplace. Workplace approval is an unverified dependency for live Microsoft access, not something Peter can arrange directly. File import must work independently of that access. The implementation below is proposed; no application code has been written and the sample files have not been changed.
 
 ## Task list

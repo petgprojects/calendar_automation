@@ -1,0 +1,10 @@
+node_modules/
+dist/
+release/
+artifacts/
+test-results/
+playwright-report/
+.DS_Store
+.pi/
+notes/.~lock.*
+notes/
