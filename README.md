@@ -53,16 +53,16 @@ This clears the selected calendar and notes folder, school-year date confirmatio
 1. Wait for any update to finish, then **quit all copies of Calendar Notes with Command-Q**. Closing only the window is not enough on macOS.
 2. Run this in Terminal. It moves only `settings.json` into a new, uniquely named backup folder; it does not delete directories or overwrite previous backups:
 
-   ```sh
-   settings_dir="$HOME/Library/Application Support/calendar-notes-offline"
-   if [ -f "$settings_dir/settings.json" ]; then
-     backup_dir="$(mktemp -d "$settings_dir/settings-backup.XXXXXX")" &&
-       mv -n "$settings_dir/settings.json" "$backup_dir/settings.json" &&
-       printf 'Settings backed up to: %s/settings.json\n' "$backup_dir"
-   else
-     printf 'No saved settings found; nothing was changed.\n'
-   fi
-   ```
+```sh
+settings_dir="$HOME/Library/Application Support/calendar-notes-offline"
+if [ -f "$settings_dir/settings.json" ]; then
+  backup_dir="$(mktemp -d "$settings_dir/settings-backup.XXXXXX")" &&
+    mv -n "$settings_dir/settings.json" "$backup_dir/settings.json" &&
+    printf 'Settings backed up to: %s/settings.json\n' "$backup_dir"
+else
+  printf 'No saved settings found; nothing was changed.\n'
+fi
+```
 
 3. Reopen Calendar Notes normally. You should see **No calendar selected**, **No folder selected**, and an unconfirmed school-year date. Choose your files and confirm the date to complete setup again.
 
