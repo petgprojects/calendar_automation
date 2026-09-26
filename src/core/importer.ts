@@ -12,7 +12,7 @@ import {
   Report,
   Settings,
   hash,
-  normalizeName,
+  namesMatch,
   revisionOrder,
   schoolYear,
   today,
@@ -91,9 +91,7 @@ export async function runImport(
       }
       const year = schoolYear(note.date, settings.month, settings.day);
       const matches = candidates.filter(
-        (c) =>
-          normalizeName(c.person) === normalizeName(note.person) &&
-          c.year === year,
+        (c) => namesMatch(c.person, note.person) && c.year === year,
       );
       if (matches.length !== 1) {
         issue(
@@ -101,7 +99,7 @@ export async function runImport(
           matches.length ? "ambiguous" : "missing",
           matches.length
             ? `More than one file matches ${note.person}, ${year}. Move duplicate files outside the notes folder, then update again.`
-            : `No file matches ${note.person}, ${year}. Place the existing “${note.person}- Student PROGRESS NOTE ${year}.docx” (or Teacher Progress Note) in the selected folder.`,
+            : `No file matches ${note.person}, ${year}. Place a matching full-name or first-name/last-initial Student/Teacher Progress Note ${year}.docx in the selected folder.`,
         );
         continue;
       }
@@ -138,6 +136,7 @@ export async function runImport(
             "A previously imported person heading is absent from this occurrence. The Word entry is preserved. Check whether the name changed or the note was deliberately removed.",
         });
     for (const [file, notes] of grouped) {
+      const filenamePerson = candidates.find((c) => c.file === file)!.person;
       options.onProgress?.(`Checking ${file}…`);
       const beforeCounts = {
         added: report.added,
@@ -154,8 +153,9 @@ export async function runImport(
         );
         const doc = await WordDocument.load(
           before,
-          notes[0].person,
+          notes.map((note) => note.person),
           yearContext,
+          filenamePerson,
         );
         await doc.prepareImages();
         let dirty = false;
@@ -342,7 +342,12 @@ export async function runImport(
         }
         if (dirty) {
           const after = await doc.save();
-          await WordDocument.load(after, notes[0].person, yearContext);
+          await WordDocument.load(
+            after,
+            notes.map((note) => note.person),
+            yearContext,
+            filenamePerson,
+          );
           await store.commit(
             file,
             before,

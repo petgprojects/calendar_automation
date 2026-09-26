@@ -1,6 +1,15 @@
 import ICAL from "ical.js";
 import { parseFragment } from "parse5";
-import { Blocks, Inline, Issue, Note, hash, normalizeName } from "./model";
+import {
+  Blocks,
+  Inline,
+  Issue,
+  Note,
+  hash,
+  normalizeName,
+  validPerson,
+  namesMatch,
+} from "./model";
 
 export type Calendar = {
   notes: Note[];
@@ -159,13 +168,9 @@ export function splitNotes(
     const h = /^\s*([^:\n]+?)\s*:\s*-\s*/u.exec(line);
     if (h) {
       const person = h[1].trim();
-      if (
-        !/^[\p{L}\p{M}][\p{L}\p{M}'’.\-]*(?:\s+[\p{L}\p{M}][\p{L}\p{M}'’.\-]*)+$/u.test(
-          person,
-        )
-      )
+      if (!validPerson(person))
         throw Error(
-          `A heading is not a full name: ${person}. Correct it in the calendar and export again.`,
+          `A heading is not a full name or first-name/last-initial: ${person}. Correct it in the calendar and export again.`,
         );
       let skip = h[0].length;
       const rest = original
@@ -180,17 +185,16 @@ export function splitNotes(
     } else if (notes.length) notes.at(-1)!.blocks.push(original);
     else if (line.trim())
       throw Error(
-        "Text appears before the first full-name heading. Add a full name followed by :- to assign it safely.",
+        "Text appears before the first name heading. Add a full name or first-name/last-initial followed by :- to assign it safely.",
       );
   }
-  const names = new Set<string>();
+  const names: string[] = [];
   for (const n of notes) {
-    const key = normalizeName(n.person);
-    if (names.has(key))
+    if (names.some((name) => namesMatch(name, n.person)))
       throw Error(
         `Repeated heading for ${n.person}: note identity is ambiguous. Combine that person’s notes under one heading.`,
       );
-    names.add(key);
+    names.push(n.person);
     trimBlocks(n.blocks);
     if (!n.blocks.length)
       throw Error(

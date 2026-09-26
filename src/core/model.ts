@@ -88,6 +88,21 @@ export const hash = (s: string | Buffer) =>
   createHash("sha256").update(s).digest("hex");
 export const normalizeName = (s: string) =>
   s.normalize("NFKC").trim().replace(/\s+/gu, " ").toLocaleLowerCase("en");
+// Match either an exact full name or its first-name/last-initial abbreviation.
+// An abbreviation never establishes which of two people with the same initials is meant;
+// callers must reject multiple matching documents.
+export const compactName = (s: string) => {
+  const parts = normalizeName(s).split(" ");
+  return parts.length > 1 ? parts[0] + parts.at(-1)![0] : undefined;
+};
+export const namesMatch = (a: string, b: string) =>
+  normalizeName(a) === normalizeName(b) ||
+  (compactName(a) !== undefined && compactName(a) === normalizeName(b)) ||
+  (compactName(b) !== undefined && compactName(b) === normalizeName(a));
+export const validPerson = (s: string) =>
+  /^[\p{L}\p{M}][\p{L}\p{M}'’.\-]*(?:\s+[\p{L}\p{M}][\p{L}\p{M}'’.\-]*)+$/u.test(
+    s,
+  ) || /^[\p{Lu}][\p{L}\p{M}'’.\-]*[\p{Lu}]$/u.test(s);
 export const whitespace = (s: string) =>
   s.normalize("NFC").replace(/\s+/gu, " ").trim();
 export function schoolYear(date: string, month: number, day: number) {

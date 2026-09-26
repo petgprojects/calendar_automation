@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
-import { Blocks, Inline, hash, normalizeName } from "./model";
+import { Blocks, Inline, hash, namesMatch, normalizeName } from "./model";
 const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const serializer = new XMLSerializer();
@@ -112,7 +112,12 @@ export class WordDocument {
     public original: Buffer,
     private yearContext?: number,
   ) {}
-  static async load(buffer: Buffer, person?: string, yearContext?: number) {
+  static async load(
+    buffer: Buffer,
+    person?: string | string[],
+    yearContext?: number,
+    filenamePerson?: string,
+  ) {
     if (buffer.length > 60 * 1024 * 1024)
       throw Error("This DOCX exceeds the 60 MB safety limit.");
     const zip = await JSZip.loadAsync(buffer, { checkCRC32: true });
@@ -181,10 +186,17 @@ export class WordDocument {
       }
       if (
         !labels.length ||
-        labels.some((label) => label !== normalizeName(person))
+        labels.some(
+          (label) =>
+            label !== labels[0] ||
+            !(Array.isArray(person) ? person : [person]).every((name) =>
+              namesMatch(label, name),
+            ) ||
+            (filenamePerson && !namesMatch(label, filenamePerson)),
+        )
       )
         throw Error(
-          "The internal Student/Teacher Name does not match the filename. Correct the label or filename before importing.",
+          "The internal Student/Teacher Name does not match the filename or calendar heading. Correct the label, filename or heading before importing.",
         );
     }
     const instance = new WordDocument(zip, doc, table, buffer, yearContext);
