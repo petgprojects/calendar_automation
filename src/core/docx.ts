@@ -1,6 +1,13 @@
 import JSZip from "jszip";
 import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
-import { Blocks, Inline, hash, namesMatch, normalizeName } from "./model";
+import {
+  Blocks,
+  Inline,
+  RecipientRole,
+  hash,
+  namesMatch,
+  normalizeName,
+} from "./model";
 const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const serializer = new XMLSerializer();
@@ -117,6 +124,7 @@ export class WordDocument {
     person?: string | string[],
     yearContext?: number,
     filenamePerson?: string,
+    expectedRole?: RecipientRole,
   ) {
     if (buffer.length > 60 * 1024 * 1024)
       throw Error("This DOCX exceeds the 60 MB safety limit.");
@@ -180,8 +188,14 @@ export class WordDocument {
           const text = elements(p, "t")
             .map((t) => t.textContent)
             .join("");
-          const m = /(?:Student|Teacher)\s+Name\s*:\s*(.+)/i.exec(text);
-          if (m) labels.push(normalizeName(m[1]));
+          const m = /(Student|Teacher)\s+Name\s*:\s*(.+)/i.exec(text);
+          if (m) {
+            if (expectedRole && m[1].toLowerCase() !== expectedRole)
+              throw Error(
+                "The internal Student/Teacher label does not match the filename's recipient group. Correct it before broadcasting.",
+              );
+            labels.push(normalizeName(m[2]));
+          }
         }
       }
       if (

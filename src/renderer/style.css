@@ -68,7 +68,8 @@ section {
   color: #45576e;
 }
 button,
-select {
+select,
+input[type="text"] {
   font: inherit;
   min-height: 52px;
   border: 2px solid #49617f;
@@ -105,6 +106,7 @@ button:disabled {
 }
 button:focus-visible,
 select:focus-visible,
+input:focus-visible,
 summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 4px solid #a34600;
@@ -119,7 +121,8 @@ label {
   display: block;
   font-weight: 600;
 }
-label select {
+label select,
+input[type="text"] {
   display: block;
   margin: 6px 0 16px;
   max-width: 100%;

@@ -20,7 +20,9 @@ let busy = false;
 let dirty = false;
 const month = el<HTMLSelectElement>("month"),
   day = el<HTMLSelectElement>("day"),
-  timezone = el<HTMLSelectElement>("timezone");
+  timezone = el<HTMLSelectElement>("timezone"),
+  teacherTag = el<HTMLInputElement>("teacher-tag"),
+  studentTag = el<HTMLInputElement>("student-tag");
 const months = [
   "January",
   "February",
@@ -72,11 +74,13 @@ function buttons() {
     !settings?.folder ||
     !settings?.confirmed ||
     dirty;
-  [month, day, timezone].forEach((s) => (s.disabled = busy));
+  [month, day, timezone, teacherTag, studentTag].forEach(
+    (s) => (s.disabled = busy),
+  );
   el("confirmed").textContent =
     settings?.confirmed && !dirty
       ? "School-year date confirmed."
-      : "Please confirm the date shown above.";
+      : "Please confirm the date and save any changed settings.";
 }
 function showSettings() {
   const ready = Boolean(
@@ -99,6 +103,8 @@ function showSettings() {
   if (![...timezone.options].some((o) => o.value === settings.timezone))
     timezone.add(new Option(settings.timezone, settings.timezone));
   timezone.value = settings.timezone;
+  teacherTag.value = settings.broadcastTags?.teacher ?? "";
+  studentTag.value = settings.broadcastTags?.student ?? "";
   el("last-run").textContent = settings.lastRun
     ? `Last scan: ${new Date(settings.lastRun).toLocaleString()}. This is a local snapshot, not a live calendar.`
     : "No update has run yet.";
@@ -136,6 +142,11 @@ timezone.addEventListener("change", () => {
   dirty = true;
   buttons();
 });
+for (const input of [teacherTag, studentTag])
+  input.addEventListener("input", () => {
+    dirty = true;
+    buttons();
+  });
 el("year-form").addEventListener("submit", (e) => {
   e.preventDefault();
   void task(async () => {
@@ -143,6 +154,7 @@ el("year-form").addEventListener("submit", (e) => {
       month: Number(month.value),
       day: Number(day.value),
       timezone: timezone.value,
+      broadcastTags: { teacher: teacherTag.value, student: studentTag.value },
     });
     dirty = false;
     showSettings();
@@ -180,7 +192,7 @@ function display(report: Report) {
   el("results").replaceChildren();
   text(
     "p",
-    `${report.events} events read; ${report.notes} person notes through today; ${report.future} future occurrences encountered and skipped (future series are not fully expanded).`,
+    `${report.events} events read; ${report.notes} individual/group notes through today; ${report.future} future occurrences encountered and skipped (future series are not fully expanded).`,
     el("results"),
   );
   if (report.dates.length)

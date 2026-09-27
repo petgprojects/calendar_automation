@@ -20,6 +20,23 @@ Update now rereads the remembered path. **Choose newer export** retains source i
 
 Dates come from the event, not the import date. History in the export is processed through today; future recurrences are not exhaustively expanded. All-day dates never shift. Timed events use their source dates by default; advanced settings offer common calendar timezones. An observed date range does not prove a complete export.
 
+### Broadcast notes to a group
+
+In **Settings**, enter an **All teachers tag** and/or **All students tag**, then click **Confirm date and save settings**. Both fields are optional and start blank (disabled); for example, configure `ALL TEACHERS` and `ALL STUDENTS`, or use your own headings such as `@staff` and `@learners`.
+
+Use the tag instead of a person’s name in the calendar description:
+
+```text
+ALL TEACHERS :- Staff meeting notes.
+ALL STUDENTS :- Shared activity notes.
+```
+
+Matching ignores case and extra spaces, but requires the whole tag (no name abbreviations). The two tags must be different and must not include `:-`, colons, or line breaks. Avoid tags that are actual people’s names.
+
+Each note goes to existing documents of the matching Student/Teacher group **for the event’s school year**, including subfolders—not every historical year. Filename and internal Word group/name labels must agree. Files named after configured tags are excluded from broadcasts; no new documents are created. Missing recipients, ambiguous duplicate files, and unsafe documents are reported for review.
+
+Each recipient is tracked independently: repeats do not duplicate notes, source revisions and Word edits keep the usual review safeguards, and group notes can coexist with individual notes. Adding a recipient document later includes it on the next scan of that export. Changing/disabling a tag does not remove existing notes or rewrite old calendar headings; changes to an already-imported heading/group are held for review.
+
 ### Expected documents and notes
 
 - Headings: `Full Name :-` or `FirstNameL :-` (first name + last initial), at the start of a logical line. Blank lines are preserved inside a note. Changing a heading after import changes its tracked identity and is held for review.
@@ -48,7 +65,7 @@ Notes, images and backups remain local, without built-in encryption or automatic
 
 ### Reset saved setup (macOS)
 
-This clears the selected calendar and notes folder, school-year date confirmation, timezone choice, and last-run information. It does **not** undo Word edits or erase import history.
+This clears the selected calendar and notes folder, school-year date confirmation, timezone choice, broadcast tags, and last-run information. It does **not** undo Word edits or erase import history.
 
 1. Wait for any update to finish, then **quit all copies of Calendar Notes with Command-Q**. Closing only the window is not enough on macOS.
 2. Run this in Terminal. It moves only `settings.json` into a new, uniquely named backup folder; it does not delete directories or overwrite previous backups:

@@ -13,8 +13,12 @@ export type Inline = {
 };
 export type Blocks = Inline[][];
 export type Revision = { sequence: number; modified?: string };
+export type RecipientRole = "teacher" | "student";
+export type BroadcastTags = Record<RecipientRole, string>;
 export type Note = {
   key: string;
+  sourceKey?: string;
+  audience?: RecipientRole;
   eventKey: string;
   uid: string;
   occurrence: string;
@@ -45,10 +49,12 @@ export type Settings = {
   day: number;
   timezone: string;
   confirmed: boolean;
+  broadcastTags?: BroadcastTags;
   lastRun?: string;
 };
 export type RecordEntry = {
   key: string;
+  sourceKey?: string;
   eventKey: string;
   person: string;
   date: string;
@@ -99,6 +105,42 @@ export const namesMatch = (a: string, b: string) =>
   normalizeName(a) === normalizeName(b) ||
   (compactName(a) !== undefined && compactName(a) === normalizeName(b)) ||
   (compactName(b) !== undefined && compactName(b) === normalizeName(a));
+// Tags are exact normalized headings, never first-name/last-initial aliases.
+export function broadcastRole(
+  heading: string,
+  tags: BroadcastTags,
+): RecipientRole | undefined {
+  return (["teacher", "student"] as const).find(
+    (role) =>
+      tags[role] && normalizeName(tags[role]) === normalizeName(heading),
+  );
+}
+export function validateBroadcastTags(value: unknown): BroadcastTags {
+  if (
+    value !== undefined &&
+    (!value || typeof value !== "object" || Array.isArray(value))
+  )
+    throw Error("Broadcast tags must contain teacher and student headings.");
+  const tags: BroadcastTags = { teacher: "", student: "" };
+  for (const role of ["teacher", "student"] as const) {
+    const tag = (value as Partial<BroadcastTags> | undefined)?.[role] ?? "";
+    if (
+      typeof tag !== "string" ||
+      tag.length > 100 ||
+      /[:\r\n\u2028\u2029]/u.test(tag)
+    )
+      throw Error(
+        "Use broadcast tags of at most 100 characters, without colons or line breaks. Enter only the heading, not :-.",
+      );
+    tags[role] = tag.trim();
+  }
+  if (
+    tags.teacher &&
+    normalizeName(tags.teacher) === normalizeName(tags.student)
+  )
+    throw Error("Teacher and student broadcast tags must be different.");
+  return tags;
+}
 export const validPerson = (s: string) =>
   /^[\p{L}\p{M}][\p{L}\p{M}'’.\-]*(?:\s+[\p{L}\p{M}][\p{L}\p{M}'’.\-]*)+$/u.test(
     s,
