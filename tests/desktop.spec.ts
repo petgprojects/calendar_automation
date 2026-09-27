@@ -6,7 +6,112 @@ import {
 } from "@playwright/test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { workspace } from "./helpers";
+import { workspace, event, files, brenda, readDoc } from "./helpers";
+
+test("broadcast settings migrate from an older profile, validate, persist and deliver from the UI", async () => {
+  const w = await workspace(true);
+  const userData = path.join(w.root, "app-data");
+  await fs.mkdir(userData);
+  // Older profiles have no broadcastTags property.
+  await fs.writeFile(
+    path.join(userData, "settings.json"),
+    JSON.stringify(w.settings),
+  );
+  await w.write(event("All learners :- Shared from the desktop"));
+  let app: ElectronApplication | undefined;
+  const launch = () =>
+    electron.launch({
+      ...(process.env.CALENDAR_NOTES_APP
+        ? { executablePath: process.env.CALENDAR_NOTES_APP, args: [] }
+        : { args: ["."] }),
+      env: { ...process.env, CALENDAR_NOTES_USER_DATA: userData },
+    });
+  try {
+    app = await launch();
+    const page = await app.firstWindow();
+    const update = page.getByRole("button", {
+      name: "Update now",
+      exact: true,
+    });
+    await expect(update).toBeEnabled();
+    await page.locator("#setup-title").click();
+    const teacher = page.getByLabel("All teachers tag", { exact: true });
+    const student = page.getByLabel("All students tag", { exact: true });
+    await expect(teacher).toHaveValue("");
+    await expect(student).toHaveValue("");
+    await teacher.fill("All learners");
+    await student.fill(" ALL   LEARNERS ");
+    await expect(update).toBeDisabled();
+    await page
+      .getByRole("button", {
+        name: "Confirm date and save settings",
+        exact: true,
+      })
+      .click();
+    await expect(page.locator("#error")).toContainText("must be different");
+    await expect(update).toBeDisabled();
+    await teacher.fill("@staff");
+    await student.fill("All learners");
+    await page
+      .getByRole("button", {
+        name: "Confirm date and save settings",
+        exact: true,
+      })
+      .click();
+    await expect(update).toBeEnabled();
+    const saved = JSON.parse(
+      await fs.readFile(path.join(userData, "settings.json"), "utf8"),
+    );
+    expect(saved.broadcastTags).toEqual({
+      teacher: "@staff",
+      student: "All learners",
+    });
+    await update.click();
+    await expect(page.locator("#status")).toContainText("4 added", {
+      timeout: 30000,
+    });
+    await expect(page.locator("#status")).toContainText("0 review items");
+    for (const file of files) {
+      const rows = (await readDoc(w.folder, file))
+        .rows()
+        .filter((r) => !r.blank);
+      expect(rows.map((r) => r.text)).toEqual(
+        file === brenda ? [] : ["Shared from the desktop"],
+      );
+    }
+    await app.close();
+    app = await launch();
+    const restored = await app.firstWindow();
+    await expect(restored.locator("#teacher-tag")).toHaveValue("@staff");
+    await expect(restored.locator("#student-tag")).toHaveValue("All learners");
+    await restored
+      .getByRole("button", { name: "Update now", exact: true })
+      .click();
+    await expect(restored.locator("#status")).toContainText("4 unchanged", {
+      timeout: 30000,
+    });
+    await expect(restored.locator("#status")).toContainText("0 review items");
+    await restored.locator("#setup-title").click();
+    await restored.getByLabel("All students tag", { exact: true }).fill("");
+    await restored
+      .getByRole("button", {
+        name: "Confirm date and save settings",
+        exact: true,
+      })
+      .click();
+    await expect(
+      restored.getByRole("button", { name: "Update now", exact: true }),
+    ).toBeEnabled();
+    expect(
+      JSON.parse(
+        await fs.readFile(path.join(userData, "settings.json"), "utf8"),
+      ),
+    ).toHaveProperty("broadcastTags.student", "");
+  } finally {
+    await app?.close();
+    await w.cleanup();
+  }
+});
 
 test("real desktop setup, offline import, review choices, keyboard controls and remembered settings", async () => {
   const w = await workspace();
@@ -51,7 +156,10 @@ test("real desktop setup, offline import, review choices, keyboard controls and 
     await page.keyboard.press("s");
     await page.getByLabel("Month", { exact: true }).selectOption("9");
     await page
-      .getByRole("button", { name: "Confirm school-year date", exact: true })
+      .getByRole("button", {
+        name: "Confirm date and save settings",
+        exact: true,
+      })
       .click();
     const update = page.getByRole("button", {
       name: "Update now",

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { hostname } from "node:os";
-import { RecordEntry, State, hash } from "./model";
+import { RecordEntry, RecipientRole, State, hash } from "./model";
 export const META = ".calendar-import";
 export const exists = async (p: string) => {
   try {
@@ -302,7 +302,12 @@ export class Store {
     });
   }
 }
-export type Candidate = { person: string; year: string; file: string };
+export type Candidate = {
+  person: string;
+  role: RecipientRole;
+  year: string;
+  file: string;
+};
 export async function indexDocuments(root: string): Promise<Candidate[]> {
   const found: Candidate[] = [];
   let count = 0;
@@ -323,13 +328,14 @@ export async function indexDocuments(root: string): Promise<Candidate[]> {
       if (e.isDirectory()) await walk(file);
       else if (e.isFile()) {
         const m =
-          /^(.+?)(?:\s*[-–]\s*|\s+)(?:student|teacher)\s+progress\s+note\s+(\d{4})\s*-\s*(\d{4})\.docx$/i.exec(
+          /^(.+?)(?:\s*[-–]\s*|\s+)(student|teacher)\s+progress\s+note\s+(\d{4})\s*-\s*(\d{4})\.docx$/i.exec(
             e.name,
           );
-        if (m && Number(m[3]) === Number(m[2]) + 1)
+        if (m && Number(m[4]) === Number(m[3]) + 1)
           found.push({
             person: m[1].trim(),
-            year: `${m[2]}-${m[3]}`,
+            role: m[2].toLowerCase() as RecipientRole,
+            year: `${m[3]}-${m[4]}`,
             file: path.relative(root, file),
           });
       }

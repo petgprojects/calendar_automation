@@ -13,6 +13,9 @@ import {
   Settings,
   hash,
   namesMatch,
+  normalizeName,
+  broadcastRole,
+  validateBroadcastTags,
   revisionOrder,
   schoolYear,
   today,
@@ -30,6 +33,7 @@ export async function runImport(
   options: RunOptions = {},
 ): Promise<Report> {
   validateRollover(settings.month, settings.day);
+  const tags = validateBroadcastTags(settings.broadcastTags);
   if (!settings.confirmed)
     throw Error("Confirm the school-year start date first.");
   if (!settings.icsPath || !settings.folder)
@@ -44,6 +48,7 @@ export async function runImport(
       await fs.readFile(settings.icsPath, "utf8"),
       options.through ?? today(),
       settings.timezone,
+      tags,
     );
     const report: Report = {
       added: 0,
@@ -61,11 +66,17 @@ export async function runImport(
     };
     const candidates = await indexDocuments(root);
     const batch = randomUUID();
-    const presentKeys = new Set(calendar.notes.map((n) => n.key));
+    const sourceKeys = new Set(calendar.notes.map((n) => n.key));
+    const knownSourceKeys = new Set(
+      Object.values(store.state.records).map((r) => r.sourceKey ?? r.key),
+    );
+    const presentKeys = new Set<string>();
     const renamedEvents = new Set(
       Object.values(store.state.records)
         .filter(
-          (r) => calendar.eventKeys.has(r.eventKey) && !presentKeys.has(r.key),
+          (r) =>
+            calendar.eventKeys.has(r.eventKey) &&
+            !sourceKeys.has(r.sourceKey ?? r.key),
         )
         .map((r) => r.eventKey),
     );
@@ -81,7 +92,7 @@ export async function runImport(
         source: note.text,
       });
     for (const note of calendar.notes) {
-      if (!store.state.records[note.key] && renamedEvents.has(note.eventKey)) {
+      if (!knownSourceKeys.has(note.key) && renamedEvents.has(note.eventKey)) {
         issue(
           note,
           "identity",
@@ -91,39 +102,75 @@ export async function runImport(
       }
       const year = schoolYear(note.date, settings.month, settings.day);
       const matches = candidates.filter(
-        (c) => namesMatch(c.person, note.person) && c.year === year,
+        (c) =>
+          c.year === year &&
+          (note.audience
+            ? c.role === note.audience && !broadcastRole(c.person, tags)
+            : namesMatch(c.person, note.person)),
       );
-      if (matches.length !== 1) {
+      if (!matches.length || (!note.audience && matches.length !== 1)) {
         issue(
           note,
           matches.length ? "ambiguous" : "missing",
-          matches.length
-            ? `More than one file matches ${note.person}, ${year}. Move duplicate files outside the notes folder, then update again.`
-            : `No file matches ${note.person}, ${year}. Place a matching full-name or first-name/last-initial Student/Teacher Progress Note ${year}.docx in the selected folder.`,
+          note.audience
+            ? `No ${note.audience} documents match ${year} for broadcast tag “${note.person}”. Add existing, correctly labelled documents to the notes folder; no tag-named file is created.`
+            : matches.length
+              ? `More than one file matches ${note.person}, ${year}. Move duplicate files outside the notes folder, then update again.`
+              : `No file matches ${note.person}, ${year}. Place a matching full-name or first-name/last-initial Student/Teacher Progress Note ${year}.docx in the selected folder.`,
         );
         continue;
       }
-      const file = matches[0].file;
-      const saved = store.state.records[note.key];
-      if (saved && (saved.file !== file || saved.date !== note.date)) {
-        issue(
-          note,
-          "route",
-          "This entry now has a different date, filename or school year. The old entry is preserved. Review/move it with assistance before importing; nothing is moved automatically.",
-          file,
-        );
-        continue;
+      for (const match of matches) {
+        // One source heading has a separate, stable journal/bookmark per recipient.
+        // The source key also prevents roster changes from looking like renamed headings.
+        const recipient: Note = note.audience
+          ? {
+              ...note,
+              sourceKey: note.key,
+              key: hash(
+                JSON.stringify([note.key, normalizeName(match.person)]),
+              ),
+              person: match.person,
+            }
+          : note;
+        presentKeys.add(recipient.key);
+        if (
+          note.audience &&
+          matches.some(
+            (other) =>
+              other.file !== match.file &&
+              namesMatch(other.person, match.person),
+          )
+        ) {
+          issue(
+            recipient,
+            "ambiguous",
+            `More than one ${note.audience} file matches ${match.person}, ${year}. Move duplicate files outside the notes folder, then update again.`,
+            match.file,
+          );
+          continue;
+        }
+        const file = match.file;
+        const saved = store.state.records[recipient.key];
+        if (saved && (saved.file !== file || saved.date !== recipient.date)) {
+          issue(
+            recipient,
+            "route",
+            "This entry now has a different date, filename or school year. The old entry is preserved. Review/move it with assistance before importing; nothing is moved automatically.",
+            file,
+          );
+          continue;
+        }
+        const notes = grouped.get(file) ?? [];
+        notes.push(recipient);
+        grouped.set(file, notes);
       }
-      const notes = grouped.get(file) ?? [];
-      notes.push(note);
-      grouped.set(file, notes);
     }
     // Only an explicitly observed occurrence may suggest a removed heading. Missing events in partial exports never imply deletion.
-    const keys = new Set(calendar.notes.map((n) => n.key));
     for (const record of Object.values(store.state.records))
       if (
         calendar.eventKeys.has(record.eventKey) &&
-        !keys.has(record.key) &&
+        !sourceKeys.has(record.sourceKey ?? record.key) &&
         !calendar.cancelledKeys.has(record.eventKey)
       )
         report.issues.push({
@@ -136,7 +183,11 @@ export async function runImport(
             "A previously imported person heading is absent from this occurrence. The Word entry is preserved. Check whether the name changed or the note was deliberately removed.",
         });
     for (const [file, notes] of grouped) {
-      const filenamePerson = candidates.find((c) => c.file === file)!.person;
+      const candidate = candidates.find((c) => c.file === file)!;
+      const filenamePerson = candidate.person;
+      const expectedRole = notes.some((note) => note.audience)
+        ? candidate.role
+        : undefined;
       options.onProgress?.(`Checking ${file}…`);
       const beforeCounts = {
         added: report.added,
@@ -156,6 +207,7 @@ export async function runImport(
           notes.map((note) => note.person),
           yearContext,
           filenamePerson,
+          expectedRole,
         );
         await doc.prepareImages();
         let dirty = false;
@@ -328,6 +380,7 @@ export async function runImport(
           dirty = true;
           patch[note.key] = {
             key: note.key,
+            sourceKey: note.sourceKey,
             eventKey: note.eventKey,
             person: note.person,
             date: note.date,
@@ -347,6 +400,7 @@ export async function runImport(
             notes.map((note) => note.person),
             yearContext,
             filenamePerson,
+            expectedRole,
           );
           await store.commit(
             file,

@@ -85,8 +85,44 @@
                 automatically.
               </p>
             </details>
+            <h3>4. Broadcast tags (optional)</h3>
+            <p id="broadcast-help" class="hint">
+              Enter a heading such as ALL TEACHERS or ALL STUDENTS, without :-.
+              Use it in a calendar note like “ALL TEACHERS :- Meeting notes”.
+              Matching ignores case and extra spaces. Each tag sends its note to
+              all existing documents in that group for the event’s school year,
+              including subfolders. Student/Teacher filename and internal labels
+              must agree. Leave a field blank to disable that broadcast.
+            </p>
+            <div class="fields">
+              <div>
+                <label for="teacher-tag">All teachers tag</label>
+                <input
+                  id="teacher-tag"
+                  type="text"
+                  maxlength="100"
+                  placeholder="ALL TEACHERS"
+                  aria-describedby="broadcast-help"
+                />
+              </div>
+              <div>
+                <label for="student-tag">All students tag</label>
+                <input
+                  id="student-tag"
+                  type="text"
+                  maxlength="100"
+                  placeholder="ALL STUDENTS"
+                  aria-describedby="broadcast-help"
+                />
+              </div>
+            </div>
+            <p class="hint">
+              Tags must be different; avoid using a person’s name. Changing a
+              tag does not rename old calendar headings or remove imported
+              notes.
+            </p>
             <button id="confirm-year" type="submit">
-              Confirm school-year date</button
+              Confirm date and save settings</button
             ><span id="confirmed" role="status"></span>
           </form>
         </details>
@@ -130,10 +166,11 @@
           <p>
             Full names or first-name/last-initial names (e.g. MandyT) followed
             by
-            <strong>:-</strong> start each note. Blank lines stay within notes.
-            Filenames may use either form and must include Student or Teacher
-            Progress Note and the school year. The internal Word name must
-            match. Existing two-column date/comments forms are required.
+            <strong>:-</strong> start each note. Configured broadcast tags use
+            the same heading format. Blank lines stay within notes. Filenames
+            may use either form and must include Student or Teacher Progress
+            Note and the school year. The internal Word name must match.
+            Existing two-column date/comments forms are required.
           </p>
           <p>
             Embedded PNG/JPEG images in an HTML calendar description are

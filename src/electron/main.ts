@@ -4,7 +4,12 @@ import fs from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { runImport, recoverLastUpdate } from "../core/importer";
 import { atomicWrite, readJson } from "../core/storage";
-import { Choice, Settings, validateRollover } from "../core/model";
+import {
+  Choice,
+  Settings,
+  validateRollover,
+  validateBroadcastTags,
+} from "../core/model";
 
 if (process.env.CALENDAR_NOTES_USER_DATA)
   app.setPath("userData", path.resolve(process.env.CALENDAR_NOTES_USER_DATA));
@@ -19,6 +24,7 @@ let settings: Settings = {
   day: 1,
   timezone: "source",
   confirmed: false,
+  broadcastTags: { teacher: "", student: "" },
 };
 const page = pathToFileURL(path.join(__dirname, "../renderer/index.html")).href;
 const settingsPath = () => path.join(app.getPath("userData"), "settings.json");
@@ -129,6 +135,9 @@ if (single)
         const v = value as Partial<Settings>;
         validateRollover(Number(v.month), Number(v.day));
         const timezone = String(v.timezone ?? "source");
+        const broadcastTags = validateBroadcastTags(
+          v.broadcastTags ?? settings.broadcastTags,
+        );
         if (timezone !== "source")
           new Intl.DateTimeFormat("en", { timeZone: timezone }).format();
         settings = {
@@ -136,6 +145,7 @@ if (single)
           month: Number(v.month),
           day: Number(v.day),
           timezone,
+          broadcastTags,
           confirmed: true,
         };
         await save();

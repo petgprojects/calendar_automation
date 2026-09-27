@@ -2,6 +2,7 @@ import ICAL from "ical.js";
 import { parseFragment } from "parse5";
 import {
   Blocks,
+  BroadcastTags,
   Inline,
   Issue,
   Note,
@@ -9,6 +10,8 @@ import {
   normalizeName,
   validPerson,
   namesMatch,
+  broadcastRole,
+  validateBroadcastTags,
 } from "./model";
 
 export type Calendar = {
@@ -161,6 +164,7 @@ function trimBlocks(blocks: Blocks) {
 }
 export function splitNotes(
   blocks: Blocks,
+  tags: BroadcastTags = { teacher: "", student: "" },
 ): { person: string; blocks: Blocks }[] {
   const notes: { person: string; blocks: Blocks }[] = [];
   for (const original of blocks) {
@@ -168,7 +172,7 @@ export function splitNotes(
     const h = /^\s*([^:\n]+?)\s*:\s*-\s*/u.exec(line);
     if (h) {
       const person = h[1].trim();
-      if (!validPerson(person))
+      if (!broadcastRole(person, tags) && !validPerson(person))
         throw Error(
           `A heading is not a full name or first-name/last-initial: ${person}. Correct it in the calendar and export again.`,
         );
@@ -190,7 +194,13 @@ export function splitNotes(
   }
   const names: string[] = [];
   for (const n of notes) {
-    if (names.some((name) => namesMatch(name, n.person)))
+    if (
+      names.some((name) =>
+        broadcastRole(name, tags) || broadcastRole(n.person, tags)
+          ? normalizeName(name) === normalizeName(n.person)
+          : namesMatch(name, n.person),
+      )
+    )
       throw Error(
         `Repeated heading for ${n.person}: note identity is ambiguous. Combine that person’s notes under one heading.`,
       );
@@ -229,7 +239,9 @@ export function parseCalendar(
   text: string,
   through: string,
   timezone = "source",
+  broadcastTags?: BroadcastTags,
 ): Calendar {
+  const tags = validateBroadcastTags(broadcastTags);
   if (Buffer.byteLength(text) > 30 * 1024 * 1024)
     throw Error("The calendar exceeds 30 MB. Export smaller date ranges.");
   if (!/^BEGIN:VCALENDAR\s*$/m.test(text.replace(/\r/g, "")))
@@ -324,17 +336,25 @@ export function parseCalendar(
           );
           return;
         }
-        const parsed = splitNotes(body(c));
+        const parsed = splitNotes(body(c), tags);
         const sequence = Number(c.getFirstPropertyValue("sequence") ?? 0);
         if (!Number.isSafeInteger(sequence) || sequence < 0)
           throw Error("Invalid source sequence number.");
         const modified = c.getFirstPropertyValue("last-modified")?.toString();
         for (const n of parsed) {
-          const key = hash(JSON.stringify([eventKey, normalizeName(n.person)]));
+          const audience = broadcastRole(n.person, tags);
+          const key = hash(
+            JSON.stringify(
+              audience
+                ? [eventKey, "broadcast", audience, normalizeName(n.person)]
+                : [eventKey, normalizeName(n.person)],
+            ),
+          );
           const sourceHash = hash(JSON.stringify([date, n.blocks]));
           result.notes.push({
             key,
             eventKey,
+            audience,
             uid,
             occurrence,
             person: n.person,
